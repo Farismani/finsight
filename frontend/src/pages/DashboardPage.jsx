@@ -78,10 +78,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
 
-      {/* 🔥 HEADER ADDED */}
       <div>
-        <h1 className="text-3xl font-bold text-blue-400">Dashboard</h1>
-        <p className="text-white/70 mt-1">Realtime overview of claims, risk, and financial exposure</p>
+        <h1 className="text-3xl font-bold text-brand">Dashboard</h1>
+        <p className="text-slate-600 mt-1">Realtime overview of claims, risk, and financial exposure</p>
       </div>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -116,15 +115,15 @@ export default function DashboardPage() {
 
           <div className="glass-panel p-5">
             <div className="mb-5">
-              <p className="text-sm text-white/60">Realtime finance alerts</p>
-              <h3 className="font-display text-xl font-semibold text-white">Live watchlist</h3>
+              <p className="text-sm text-slate-500 font-medium">Realtime finance alerts</p>
+              <h3 className="font-display text-xl font-bold text-brand">Live watchlist</h3>
             </div>
 
             <div className="space-y-4">
               {dashboard.live_watchlist.map((alert) => (
                 <div key={alert.title} className="soft-panel p-4">
-                  <p className="text-sm font-medium text-white">{alert.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/60">{alert.body}</p>
+                  <p className="text-sm font-semibold text-brand">{alert.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{alert.body}</p>
                 </div>
               ))}
             </div>

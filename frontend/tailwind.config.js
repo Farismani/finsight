@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#F2F2F2',
+        ink: '#F1F5F9',
         panel: '#FFFFFF',
-        line: '#E5E5E5',
-        soft: '#53565A',
+        line: '#E2E8F0',
+        soft: '#475569',
         brand: '#1B365D',
         brand2: '#DA291C',
-        riskLow: '#008755',
-        riskMedium: '#D7DF23',
-        riskHigh: '#DA291C',
-        riskCritical: '#1B2D37',
+        riskLow: '#059669',
+        riskMedium: '#D97706',
+        riskHigh: '#DC2626',
+        riskCritical: '#1E293B',
       },
       fontFamily: {
         sans: ['Libre Franklin', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -30,6 +30,4 @@ export default {
   },
   plugins: [],
 }
-
-
 

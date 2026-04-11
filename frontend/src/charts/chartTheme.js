@@ -14,30 +14,32 @@ export const chartOptions = {
   plugins: {
     legend: {
       labels: {
-        color: '#393339',
+        color: '#1A1A2E',
+        font: { weight: '500' },
         usePointStyle: true,
         boxWidth: 10,
       },
     },
     tooltip: {
-      backgroundColor: 'rgba(27, 45, 55, 0.97)',
+      backgroundColor: 'rgba(26, 26, 46, 0.95)',
       titleColor: '#FFFFFF',
-      bodyColor: '#F2F2F2',
-      borderColor: 'rgba(255, 255, 255, 0.18)',
+      bodyColor: '#E2E8F0',
+      borderColor: 'rgba(27, 54, 93, 0.3)',
       borderWidth: 1,
+      titleFont: { weight: '600' },
+      bodyFont: { weight: '400' },
     },
   },
   scales: {
     x: {
-      ticks: { color: '#53565A' },
-      grid: { color: 'rgba(27, 54, 93, 0.1)' },
+      ticks: { color: '#475569', font: { weight: '500' } },
+      grid: { color: 'rgba(27, 54, 93, 0.12)' },
     },
     y: {
-      ticks: { color: '#53565A' },
-      grid: { color: 'rgba(27, 54, 93, 0.1)' },
+      ticks: { color: '#475569', font: { weight: '500' } },
+      grid: { color: 'rgba(27, 54, 93, 0.12)' },
     },
   },
   maintainAspectRatio: false,
 }
-
 

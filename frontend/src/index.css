@@ -7,13 +7,19 @@
 :root {
   color-scheme: light;
   --bb-blue: #1B365D;
-  --bb-blue-deep: #1B2D37;
-  --bb-blue-ink: #393339;
+  --bb-blue-deep: #132238;
+  --bb-blue-ink: #1A1A2E;
   --bb-red: #DA291C;
-  --bb-red-dark: #DA291C;
-  --bb-sky: #F2F2F2;
-  --bb-stone: #F2F2F2;
-  --bb-line: #E5E5E5;
+  --bb-red-dark: #B81E14;
+  --bb-sky: #F8FAFC;
+  --bb-stone: #F1F5F9;
+  --bb-line: #E2E8F0;
+  --text-primary: #1A1A2E;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-tertiary: #F1F5F9;
 }
 
 html,
@@ -81,7 +87,7 @@ select {
 
 .text-muted {
   @apply text-sm;
-  color: #53565A;
+  color: var(--text-muted);
 }
 
 .font-display,
@@ -92,10 +98,19 @@ h3 {
   letter-spacing: -0.015em;
 }
 
-.glass-panel .text-white,
-.soft-panel .text-white,
-.grid-shell .text-white {
-  color: var(--bb-blue-ink) !important;
+/* Fix contrast: dark text on light backgrounds for glass/soft panels */
+.glass-panel,
+.soft-panel {
+  color: var(--text-primary);
+}
+
+.glass-panel h1,
+.glass-panel h2,
+.glass-panel h3,
+.soft-panel h1,
+.soft-panel h2,
+.soft-panel h3 {
+  color: var(--text-primary);
 }
 
 .glass-panel .text-slate-400,
@@ -103,11 +118,21 @@ h3 {
 .glass-panel .text-slate-200,
 .soft-panel .text-slate-400,
 .soft-panel .text-slate-300,
-.soft-panel .text-slate-200,
-.grid-shell .text-slate-400,
-.grid-shell .text-slate-300,
-.grid-shell .text-slate-200 {
-  color: #53565A !important;
+.soft-panel .text-slate-200 {
+  color: var(--text-secondary) !important;
+}
+
+/* Keep white text only for dark brand-colored backgrounds */
+.bg-brand .text-white,
+.bg-brand2 .text-white {
+  color: #ffffff !important;
+}
+
+.bg-brand .text-slate-400,
+.bg-brand .text-slate-300,
+.bg-brand2 .text-slate-400,
+.bg-brand2 .text-slate-300 {
+  color: rgba(255,255,255,0.7) !important;
 }
 
 .glass-panel .bg-white\/5,
@@ -116,7 +141,7 @@ h3 {
 .glass-panel .bg-white\/\[0\.03\],
 .soft-panel .bg-white\/\[0\.03\],
 .grid-shell .bg-white\/\[0\.03\] {
-  background-color: #F2F2F2 !important;
+  background-color: var(--bg-secondary) !important;
 }
 
 .glass-panel .border-white\/10,
@@ -128,18 +153,28 @@ h3 {
   border-color: var(--bb-line) !important;
 }
 
+/* Map bright accent colors to brand blue for visibility */
 .bg-cyan-300,
 .bg-cyan-400,
 .bg-sky-400 {
   background-color: var(--bb-blue) !important;
 }
 
+/* Map light text colors to brand blue for visibility on dark backgrounds */
 .text-cyan-100,
 .text-cyan-200,
 .text-cyan-300,
 .text-sky-100,
 .text-sky-200 {
   color: var(--bb-blue) !important;
+}
+
+/* Better contrast for cyan/teal on light backgrounds */
+.text-cyan-600,
+.text-cyan-700,
+.text-teal-600,
+.text-teal-700 {
+  color: var(--bb-blue-deep) !important;
 }
 
 .border-cyan-300\/20,
@@ -167,6 +202,12 @@ h3 {
   color: #ffffff !important;
 }
 
+/* Better hover states for light backgrounds */
+.glass-panel .hover\:bg-white\/10:hover,
+.soft-panel .hover\:bg-white\/10:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
 .bg-gradient-to-r,
 .bg-gradient-to-br,
 .bg-gradient-to-t {
@@ -182,7 +223,7 @@ select {
 }
 
 input::placeholder {
-  color: #97999B !important;
+  color: var(--text-muted) !important;
 }
 
 table thead {
@@ -203,6 +244,4 @@ tbody tr {
 .hyper-mode .grid-shell::before {
   display: none;
 }
-
-
 

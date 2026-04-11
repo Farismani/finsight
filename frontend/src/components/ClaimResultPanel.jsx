@@ -17,15 +17,15 @@ function ResultBlock({ icon, title, subtitle, children }) {
   return (
     <div className="soft-panel p-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 text-cyan-200">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
           <Icon className="h-4 w-4" />
         </div>
         <div>
-          <p className="text-sm font-medium text-white">{title}</p>
-          <p className="text-xs text-slate-400">{subtitle}</p>
+          <p className="text-sm font-semibold text-brand">{title}</p>
+          <p className="text-xs text-slate-500">{subtitle}</p>
         </div>
       </div>
-      <div className="mt-4 text-sm leading-6 text-slate-300">{children}</div>
+      <div className="mt-4 text-sm leading-6 text-slate-700">{children}</div>
     </div>
   )
 }
@@ -33,7 +33,7 @@ function ResultBlock({ icon, title, subtitle, children }) {
 export default function ClaimResultPanel({ result }) {
   if (!result) {
     return (
-      <div className="glass-panel flex min-h-[430px] items-center justify-center p-8 text-center text-slate-400">
+      <div className="glass-panel flex min-h-[430px] items-center justify-center p-8 text-center text-slate-500">
         Submit a claim to visualize GST validation, policy issues, and risk scoring.
       </div>
     )
@@ -54,11 +54,11 @@ export default function ClaimResultPanel({ result }) {
     <div className="glass-panel space-y-5 p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-400">Claim outcome</p>
-          <h2 className="mt-2 font-display text-2xl font-semibold text-white">
+          <p className="text-sm text-slate-500 font-medium">Claim outcome</p>
+          <h2 className="mt-2 font-display text-2xl font-bold text-brand">
             Status: {result.status}
           </h2>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-600">
             {result.claim.employee} / {result.claim.vendor}
           </p>
         </div>
@@ -80,28 +80,28 @@ export default function ClaimResultPanel({ result }) {
                 ? 'GST matches Indian GST rules for this expense category.'
                 : gst.issues.join(' ')}
             </p>
-            <div className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/30 p-3 text-xs sm:grid-cols-2">
-              <div>
-                <p className="text-slate-500">GST</p>
-                <p className="mt-1 font-medium text-white">{formatCurrency(gst.provided_gst)}</p>
-              </div>
-              <div>
-                <p className="text-slate-500">Expected GST</p>
-                <p className="mt-1 font-medium text-white">{formatCurrency(gst.expected_gst)}</p>
-              </div>
-              <div>
-                <p className="text-slate-500">CGST</p>
-                <p className="mt-1 font-medium text-white">{formatCurrency(gst.cgst)}</p>
-              </div>
-              <div>
-                <p className="text-slate-500">SGST</p>
-                <p className="mt-1 font-medium text-white">{formatCurrency(gst.sgst)}</p>
-              </div>
-              <div>
-                <p className="text-slate-500">IGST</p>
-                <p className="mt-1 font-medium text-white">{formatCurrency(gst.igst)}</p>
-              </div>
+          <div className="grid gap-2 rounded-2xl border border-line bg-slate-50 p-3 text-xs sm:grid-cols-2">
+            <div>
+              <p className="text-slate-500 font-medium">GST</p>
+              <p className="mt-1 font-bold text-brand">{formatCurrency(gst.provided_gst)}</p>
             </div>
+            <div>
+              <p className="text-slate-500 font-medium">Expected GST</p>
+              <p className="mt-1 font-bold text-brand">{formatCurrency(gst.expected_gst)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-medium">CGST</p>
+              <p className="mt-1 font-bold text-brand">{formatCurrency(gst.cgst)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-medium">SGST</p>
+              <p className="mt-1 font-bold text-brand">{formatCurrency(gst.sgst)}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 font-medium">IGST</p>
+              <p className="mt-1 font-bold text-brand">{formatCurrency(gst.igst)}</p>
+            </div>
+          </div>
           </div>
         </ResultBlock>
 
@@ -122,14 +122,14 @@ export default function ClaimResultPanel({ result }) {
         subtitle={result.assessment.risk.label}
       >
         <div className="flex items-center justify-between">
-          <span className="text-4xl font-semibold text-white">
+          <span className="text-4xl font-bold text-brand">
             {result.assessment.risk.score}
           </span>
           <RiskBadge value={effectiveRisk} />
         </div>
-        <div className="mt-4 h-3 rounded-full bg-white/5">
+        <div className="mt-4 h-3 rounded-full bg-slate-200">
           <div
-            className="h-3 rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-purple-500"
+            className="h-3 rounded-full bg-gradient-to-r from-brand via-brand2 to-purple-600"
             style={{
               width: `${Math.min(result.assessment.risk.score, 100)}%`,
             }}
@@ -143,12 +143,12 @@ export default function ClaimResultPanel({ result }) {
           title="Behavioral Risk"
           subtitle={result.assessment.behavioral_risk.level}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-3xl font-semibold text-white">
-              {result.assessment.behavioral_risk.score}
-            </span>
-            <RiskBadge value={result.assessment.behavioral_risk.level} />
-          </div>
+        <div className="flex items-center justify-between">
+          <span className="text-3xl font-bold text-brand">
+            {result.assessment.behavioral_risk.score}
+          </span>
+          <RiskBadge value={result.assessment.behavioral_risk.level} />
+        </div>
         </ResultBlock>
 
         <ResultBlock
@@ -156,12 +156,12 @@ export default function ClaimResultPanel({ result }) {
           title="Vendor Risk"
           subtitle={result.assessment.vendor_risk.level}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-3xl font-semibold text-white">
-              {result.assessment.vendor_risk.score}
-            </span>
-            <RiskBadge value={result.assessment.vendor_risk.level} />
-          </div>
+        <div className="flex items-center justify-between">
+          <span className="text-3xl font-bold text-brand">
+            {result.assessment.vendor_risk.score}
+          </span>
+          <RiskBadge value={result.assessment.vendor_risk.level} />
+        </div>
         </ResultBlock>
 
         <ResultBlock
@@ -169,19 +169,19 @@ export default function ClaimResultPanel({ result }) {
           title="Compliance Score"
           subtitle={complianceScore.label}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-3xl font-semibold text-white">
-              {complianceScore.score}
-            </span>
-            <RiskBadge value={complianceScore.label} />
-          </div>
+        <div className="flex items-center justify-between">
+          <span className="text-3xl font-bold text-brand">
+            {complianceScore.score}
+          </span>
+          <RiskBadge value={complianceScore.label} />
+        </div>
         </ResultBlock>
       </div>
 
       <div className="soft-panel p-4">
-        <p className="text-sm text-slate-400">Admin review</p>
-        <p className="mt-2 text-lg font-semibold text-white">Status: {result.status}</p>
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="text-sm text-slate-500 font-medium">Admin review</p>
+        <p className="mt-2 text-lg font-bold text-brand">Status: {result.status}</p>
+        <p className="mt-2 text-sm text-slate-600">
           System suggestion: {result.system_status}. Final approval is available only in the admin portal.
         </p>
       </div>
