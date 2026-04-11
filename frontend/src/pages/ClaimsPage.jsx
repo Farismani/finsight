@@ -49,9 +49,9 @@ function formatAdminAction(status) {
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat('en-IN', {
-    currency: 'INR',
-    maximumFractionDigits: 2,
+  return new Intl.NumberFormat('en-US', {
+    currency: 'USD',
+    maximumFractionDigits: 0,
     style: 'currency',
   }).format(Number(value) || 0)
 }

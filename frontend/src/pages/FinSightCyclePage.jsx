@@ -31,7 +31,7 @@ const sampleClaim = {
 
 function formatCurrency(value) {
   if (typeof value !== 'number') return 'Pending'
-  return `₹${Math.round(value)}`
+  return `$${Math.round(value).toLocaleString()}`
 }
 
 function formatScore(value) {
@@ -52,9 +52,9 @@ function stepState(index, currentStep) {
 
 function StepMetric({ label, value, subtle = false }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#020617] p-4 shadow-sm">
-      <p className="text-[11px] uppercase tracking-[0.22em] text-white/70">{label}</p>
-      <p className={`mt-2 text-sm ${subtle ? 'text-white/70' : 'font-semibold text-white'}`}>
+    <div className="rounded-2xl border border-line bg-white p-4 shadow-sm">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 font-semibold">{label}</p>
+      <p className={`mt-2 text-sm ${subtle ? 'text-slate-600' : 'font-bold text-brand'}`}>
         {value}
       </p>
     </div>
@@ -66,16 +66,16 @@ function PipelineStepCard({ index, icon: Icon, title, description, state, childr
   const isComplete = state === 'complete'
 
   const shellClass = isActive
-    ? 'border-blue-400 bg-[#020617] shadow-[0_0_40px_rgba(59,130,246,0.25)] scale-[1.02]'
+    ? 'border-brand bg-white shadow-[0_0_40px_rgba(27,54,93,0.15)] scale-[1.02]'
     : isComplete
-    ? 'border-emerald-400 bg-emerald-500/10'
-    : 'border-white/10 bg-[#020617]/70 opacity-80'
+    ? 'border-emerald-500 bg-emerald-50'
+    : 'border-line bg-white opacity-70'
 
   const chipClass = isActive
-    ? 'bg-blue-500/20 text-blue-300 ring-blue-400/30'
+    ? 'bg-brand/10 text-brand ring-brand/30'
     : isComplete
-    ? 'bg-emerald-500/20 text-emerald-300 ring-emerald-400/30'
-    : 'bg-[#020617] text-white/70 ring-white/10'
+    ? 'bg-emerald-100 text-emerald-700 ring-emerald-300'
+    : 'bg-slate-100 text-slate-500 ring-slate-200'
 
   return (
     <div className={`rounded-[28px] border p-5 transition-all duration-500 ${shellClass}`}>
@@ -86,9 +86,9 @@ function PipelineStepCard({ index, icon: Icon, title, description, state, childr
           </div>
 
           <div>
-            <p className="text-xs text-white/60">Step {index + 1}</p>
-            <h3 className="text-xl font-semibold text-white">{title}</h3>
-            <p className="text-sm text-white/70">{description}</p>
+            <p className="text-xs text-slate-500 font-medium">Step {index + 1}</p>
+            <h3 className="text-xl font-bold text-brand">{title}</h3>
+            <p className="text-sm text-slate-600">{description}</p>
           </div>
         </div>
 
@@ -204,23 +204,24 @@ export default function FinSightCyclePage() {
   ]
 
   return (
-    <div className="space-y-6 text-white">
+    <div className="space-y-6">
 
       <div>
-        <h1 className="text-3xl font-bold text-blue-400">FinSight Cycle</h1>
+        <h1 className="text-3xl font-bold text-brand">FinSight Cycle</h1>
+        <p className="text-slate-600 mt-1">End-to-end claim processing pipeline visualization</p>
       </div>
 
       <button
         onClick={handleRunCycle}
         disabled={isRunning}
-        className="bg-blue-500/20 border border-blue-400 px-5 py-3 rounded-xl text-blue-300 hover:bg-blue-500/40"
+        className="border border-brand bg-brand text-white px-5 py-3 rounded-xl font-semibold hover:bg-brand-deep transition disabled:opacity-60"
       >
         {isRunning ? 'Processing...' : 'Run FinSight Cycle'}
       </button>
 
-      <div className="bg-white/10 h-2 rounded-full overflow-hidden">
+      <div className="bg-slate-200 h-2 rounded-full overflow-hidden">
         <div
-          className="bg-blue-400 h-2 transition-all duration-500"
+          className="bg-brand h-2 transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -241,7 +242,9 @@ export default function FinSightCyclePage() {
       </div>
 
       {error && (
-        <div className="text-red-400">{error}</div>
+        <div className="rounded-xl border border-red-400 bg-red-50 p-3 text-sm text-red-700 font-medium">
+          {error}
+        </div>
       )}
     </div>
   )
