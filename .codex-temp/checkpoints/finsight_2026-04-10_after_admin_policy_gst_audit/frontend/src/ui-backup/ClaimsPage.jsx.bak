@@ -1,0 +1,110 @@
+import { useEffect, useState } from "react";
+import { getClaims } from "../services/api";
+
+function ClaimsPage() {
+  const [claims, setClaims] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadClaims() {
+      try {
+        const data = await getClaims();
+        setClaims(data.claims || []);
+      } catch (err) {
+        console.error("Error fetching claims:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadClaims();
+  }, []);
+
+  const getRiskColor = (level) => {
+    switch (level) {
+      case "LOW":
+        return "green";
+      case "MEDIUM":
+        return "orange";
+      case "HIGH":
+        return "red";
+      case "CRITICAL":
+        return "purple";
+      default:
+        return "gray";
+    }
+  };
+
+  return (
+    <div style={{ padding: "20px", color: "white" }}>
+      <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
+        Claims Dashboard
+      </h1>
+
+      {loading ? (
+        <p>Loading claims...</p>
+      ) : claims.length === 0 ? (
+        <p>No claims submitted yet.</p>
+      ) : (
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            background: "#1e293b",
+            borderRadius: "10px",
+            overflow: "hidden",
+          }}
+        >
+          <thead style={{ background: "#0f172a" }}>
+            <tr>
+              <th style={thStyle}>Employee</th>
+              <th style={thStyle}>Vendor</th>
+              <th style={thStyle}>Category</th>
+              <th style={thStyle}>Amount</th>
+              <th style={thStyle}>Risk Level</th>
+              <th style={thStyle}>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {claims.map((c) => (
+              <tr key={c.id} style={{ textAlign: "center" }}>
+                <td style={tdStyle}>{c.employee}</td>
+                <td style={tdStyle}>{c.vendor}</td>
+                <td style={tdStyle}>{c.category}</td>
+                <td style={tdStyle}>${c.amount}</td>
+
+                <td style={tdStyle}>
+                  <span
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      background: getRiskColor(c.risk_level),
+                      color: "white",
+                    }}
+                  >
+                    {c.risk_level}
+                  </span>
+                </td>
+
+                <td style={tdStyle}>{c.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+const thStyle = {
+  padding: "12px",
+  fontWeight: "bold",
+};
+
+const tdStyle = {
+  padding: "12px",
+  borderBottom: "1px solid #334155",
+};
+
+export default ClaimsPage;

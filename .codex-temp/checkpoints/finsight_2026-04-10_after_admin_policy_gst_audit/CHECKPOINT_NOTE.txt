@@ -1,0 +1,5 @@
+FinSight checkpoint
+Created: 2026-04-10
+Source: c:\projects\finsight
+Purpose: User asked Codex to remember this version after audit logging, Indian GST validation, and Admin Policy Settings under Admin Panel.
+Restore note: copy backend/ and frontend/ from this checkpoint back to c:\projects\finsight after confirming overwrite.
