@@ -191,4 +191,4 @@ Render free services can spin down after inactivity, so the first request after 
 
 
 working deplyed link: https://finsight-9h1h.onrender.com 
-render deplyment used: https://dashboard.render.com/web/srv-d9hiq1upbkes73a5t8cg/deploys/dep-d9hirbmq1p3s73a0najg
+render deployyment used: https://dashboard.render.com/
