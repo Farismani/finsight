@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: finsight
+    runtime: docker
+    plan: free
+    healthCheckPath: /

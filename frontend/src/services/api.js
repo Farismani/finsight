@@ -91,3 +91,21 @@ export async function getDashboardAnalytics() {
     errorMessage: "Unable to load dashboard analytics",
   });
 }
+
+export async function getPolicy(token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  return fetchJson("/policy", { headers, errorMessage: "Unable to load policy" });
+}
+
+export async function updatePolicy(payload, token) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return fetchJson("/admin/policy/update", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+    errorMessage: "Unable to update policy",
+  });
+}

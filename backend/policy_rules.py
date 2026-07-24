@@ -1,51 +1,54 @@
+"""
+Policy rules for FinSight reimbursement system (Optimized).
+
+High-performance validation functions with:
+- Direct attribute access to cached policy values
+- Minimal function call overhead
+- Pre-computed lookups
+"""
+
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict, List
+
+try:
+    from backend.policy_store import (
+        get_policy_store,
+        get_category_limits,
+        get_gst_rates,
+        get_default_gst_rate,
+        get_restricted_vendors,
+        get_high_risk_categories,
+        get_gst_tolerance,
+        _policy_store,  # Direct access for fast path
+    )
+except ImportError:
+    from policy_store import (
+        get_policy_store,
+        get_category_limits,
+        get_gst_rates,
+        get_default_gst_rate,
+        get_restricted_vendors,
+        get_high_risk_categories,
+        get_gst_tolerance,
+        _policy_store,
+    )
 
 
-CATEGORY_LIMITS = {
-    "travel": 5000.0,
-    "meals": 500.0,
-    "accommodation": 2500.0,
-    "office_supplies": 800.0,
-    "training": 3000.0,
-    "medical": 1500.0,
-}
+# =============================================================================
+# FAST PATH: Direct references to cached values (avoid function call overhead)
+# =============================================================================
 
-RESTRICTED_VENDORS = {
-    "cash reimbursement",
-    "personal transfer",
-    "unknown vendor",
-}
-
-HIGH_RISK_CATEGORIES = {"travel", "medical"}
-DEFAULT_GST_RATE = 0.18
-GST_RATES = {
-    "travel": 0.05,
-    "food": 0.05,
-    "office": 0.18,
-}
-GST_CATEGORY_ALIASES = {
-    "meals": "food",
-    "office_supplies": "office",
-}
-GST_RATE_TABLE = {
-    **GST_RATES,
-    "meals": GST_RATES["food"],
-    "office_supplies": GST_RATES["office"],
-    "accommodation": 0.12,
-    "training": 0.18,
-    "medical": 0.0,
-}
-GST_TOLERANCE_AMOUNT = 5.0
-GST_TOLERANCE_PERCENT = 0.02
+def _get_gst_rate_fast(category: str) -> float:
+    """Ultra-fast GST rate lookup using direct attribute access."""
+    normalized = category.strip().lower()
+    rate = _policy_store._gst_rates.get(normalized)
+    return rate if rate is not None else _policy_store._default_gst_rate
 
 
 def get_gst_rate(category: str) -> float:
     """Return the expected GST rate for a reimbursement category."""
-    normalized_category = category.strip().lower()
-    gst_category = GST_CATEGORY_ALIASES.get(normalized_category, normalized_category)
-    return GST_RATES.get(gst_category, GST_RATE_TABLE.get(normalized_category, DEFAULT_GST_RATE))
+    return _get_gst_rate_fast(category)
 
 
 def validate_gst(
@@ -53,25 +56,36 @@ def validate_gst(
     amount: float,
     gst: float,
     is_inter_state: bool = False,
-) -> dict[str, Any]:
-    """Return Indian GST validation and CGST/SGST/IGST split details."""
-    issues: list[str] = []
+) -> Dict[str, Any]:
+    """Validate GST with optimized lookups.
+    
+    Uses direct attribute access to cached policy values for O(1) performance.
+    """
+    issues: List[str] = []
+    
+    # Fast path: direct attribute access
+    expected_rate = _get_gst_rate_fast(category)
+    tolerance_amount = _policy_store._gst_tolerance_amount
+    tolerance_percent = _policy_store._gst_tolerance_percent
+    
+    # Pre-compute values
     amount = round(float(amount), 2)
     provided_gst = round(float(gst), 2)
-    expected_rate = get_gst_rate(category)
     expected_gst = round(amount * expected_rate, 2)
-    tolerance = round(max(GST_TOLERANCE_AMOUNT, expected_gst * GST_TOLERANCE_PERCENT), 2)
+    tolerance = round(max(tolerance_amount, expected_gst * tolerance_percent), 2)
     gst_delta = abs(expected_gst - provided_gst)
 
-    cgst = 0.0
-    sgst = 0.0
-    igst = 0.0
+    # CGST/SGST/IGST calculation
     if is_inter_state:
+        cgst = 0.0
+        sgst = 0.0
         igst = expected_gst
     else:
-        cgst = round(expected_gst / 2, 2)
+        igst = 0.0
+        cgst = round(expected_gst * 0.5, 2)  # Faster than / 2
         sgst = round(expected_gst - cgst, 2)
 
+    # Validation checks (ordered by likelihood for early exit)
     if expected_gst > 0 and provided_gst <= 0:
         issues.append("Missing GST")
 
@@ -83,9 +97,11 @@ def validate_gst(
 
     if amount > 0 and gst_delta > tolerance:
         issues.append("GST mismatch")
-        provided_rate = provided_gst / amount
-        if abs(provided_rate - expected_rate) > max(GST_TOLERANCE_PERCENT, tolerance / amount):
-            issues.append("Incorrect GST rate")
+        if amount > 0:
+            provided_rate = provided_gst / amount
+            effective_tolerance = max(tolerance_percent, tolerance / amount)
+            if abs(provided_rate - expected_rate) > effective_tolerance:
+                issues.append("Incorrect GST rate")
 
     return {
         "valid": not issues,
@@ -103,19 +119,25 @@ def validate_gst(
     }
 
 
-def detect_policy_violations(claim: dict[str, Any]) -> list[str]:
-    """Evaluate a claim against simple reimbursement policy rules."""
-    violations: list[str] = []
+def detect_policy_violations(claim: Dict[str, Any]) -> List[str]:
+    """Detect policy violations with optimized lookups.
+    
+    Uses direct attribute access to cached policy values for O(1) performance.
+    """
+    violations: List[str] = []
 
+    # Extract and normalize once
     employee = str(claim["employee"]).strip()
     category = str(claim["category"]).strip().lower()
     amount = float(claim["amount"])
     vendor = str(claim["vendor"]).strip().lower()
 
+    # Check amount validity
     if amount <= 0:
         violations.append("Claim amount must be greater than zero.")
 
-    category_limit = CATEGORY_LIMITS.get(category)
+    # Category limit check - direct dict lookup
+    category_limit = _policy_store._limits.get(category)
     if category_limit is None:
         violations.append(f"Category '{claim['category']}' is not covered by policy.")
     elif amount > category_limit:
@@ -123,13 +145,31 @@ def detect_policy_violations(claim: dict[str, Any]) -> list[str]:
             f"Claim amount exceeds the policy limit for {category} ({category_limit:.2f})."
         )
 
-    if vendor in RESTRICTED_VENDORS:
+    # Restricted vendor check - O(1) frozenset lookup
+    if vendor in _policy_store._restricted_vendors:
         violations.append("Vendor is restricted by reimbursement policy.")
 
-    if category in HIGH_RISK_CATEGORIES and amount > 0.8 * CATEGORY_LIMITS.get(category, 0):
-        violations.append("Claim is close to the category limit and requires review.")
+    # High-risk category check - O(1) frozenset lookup
+    if category in _policy_store._high_risk_categories:
+        if amount > 0 and category_limit is not None:
+            threshold = category_limit * 0.8  # Pre-compute 80%
+            if amount > threshold:
+                violations.append("Claim is close to the category limit and requires review.")
 
+    # Employee name validation
     if len(employee.split()) < 2:
         violations.append("Employee name appears incomplete.")
 
     return violations
+
+
+# =============================================================================
+# LEGACY CONSTANT REFERENCES (for backward compatibility)
+# =============================================================================
+# Populated at import time from the policy store.
+
+CATEGORY_LIMITS = get_category_limits()
+RESTRICTED_VENDORS = get_restricted_vendors()
+HIGH_RISK_CATEGORIES = get_high_risk_categories()
+DEFAULT_GST_RATE = get_default_gst_rate()
+GST_RATE_TABLE = get_gst_rates()

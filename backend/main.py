@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import importlib.util
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 try:
@@ -23,11 +25,10 @@ try:
         track_compliance_score,
     )
     from .policy_rules import (
-        CATEGORY_LIMITS,
-        GST_RATE_TABLE,
         detect_policy_violations,
         validate_gst,
     )
+    from .policy_store import get_policy, update_policy, get_policy_store
     from .ocr_engine import extract_text, parse_receipt
     from .risk_engine import build_risk_profile
 except ImportError:
@@ -46,11 +47,10 @@ except ImportError:
         track_compliance_score,
     )
     from policy_rules import (
-        CATEGORY_LIMITS,
-        GST_RATE_TABLE,
         detect_policy_violations,
         validate_gst,
     )
+    from policy_store import get_policy, update_policy, get_policy_store
     from ocr_engine import extract_text, parse_receipt
     from risk_engine import build_risk_profile
 
@@ -68,16 +68,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-company_policy = {
-    "limits": CATEGORY_LIMITS.copy(),
-    "gst_rates": GST_RATE_TABLE.copy(),
-    "risk_thresholds": {
-        "high": 70,
-        "medium": 40,
-    },
-}
-
 multipart_available = importlib.util.find_spec("multipart") is not None
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 OCR_DEFAULTS = {
     "vendor": "Unknown Vendor",
@@ -124,23 +116,32 @@ class AdminDecisionRequest(BaseModel):
 
 @app.get("/")
 def read_root():
+    index_file = FRONTEND_DIST / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+
     return {"message": "FinSight backend running"}
 
 
 @app.get("/policy")
-def get_policy():
-    return company_policy
+def get_policy_endpoint():
+    """Get the current policy configuration from the dynamic policy store."""
+    return get_policy()
 
 
 @app.post("/policy/update")
-def update_policy(new_policy: dict):
-    global company_policy
-
-    for key in new_policy:
-        if key in company_policy:
-            company_policy[key].update(new_policy[key])
-
-    return {"status": "updated", "policy": company_policy}
+def update_policy_endpoint(new_policy: dict):
+    """Update the policy configuration in the dynamic policy store.
+    
+    Changes are immediately reflected in:
+    - GST validation (rates, tolerance)
+    - Policy violation checks (category limits, restricted vendors)
+    - Risk scoring (thresholds)
+    
+    No server restart required.
+    """
+    updated = update_policy(new_policy)
+    return {"status": "updated", "policy": updated, "message": "Policy updated successfully. Changes are now active."}
 
 
 @app.get("/claims")
@@ -312,6 +313,23 @@ def get_admin_claims(_: None = Depends(verify_admin)):
     }
 
 
+@app.get("/admin/policy")
+def admin_get_policy_endpoint(_: None = Depends(verify_admin)):
+    """Admin endpoint to get current policy configuration with authentication."""
+    return get_policy()
+
+
+@app.post("/admin/policy/update")
+def admin_update_policy_endpoint(new_policy: dict, _: None = Depends(verify_admin)):
+    """Admin endpoint to update policy configuration with authentication.
+    
+    This is the recommended endpoint for production use as it requires
+    admin authentication.
+    """
+    updated = update_policy(new_policy)
+    return {"status": "updated", "policy": updated, "message": "Policy updated successfully. Changes are now active."}
+
+
 @app.post("/admin/decision/{claim_id}")
 def decide_claim(claim_id: str, request: AdminDecisionRequest, _: None = Depends(verify_admin)):
     decision = request.decision.strip().upper()
@@ -419,3 +437,23 @@ def analyze_billing(request: BillingRequest):
     billing_data["category"] = billing_data["category"].strip().lower()
     history = get_claim_history()
     return analyze_billing_invoice(billing_data, history)
+
+
+@app.get("/{full_path:path}")
+def serve_frontend(full_path: str):
+    index_file = FRONTEND_DIST / "index.html"
+    if not index_file.exists():
+        raise HTTPException(status_code=404, detail="Not found")
+
+    requested_file = (FRONTEND_DIST / full_path).resolve()
+    frontend_root = FRONTEND_DIST.resolve()
+
+    try:
+        requested_file.relative_to(frontend_root)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Not found") from None
+
+    if requested_file.is_file():
+        return FileResponse(requested_file)
+
+    return FileResponse(index_file)
